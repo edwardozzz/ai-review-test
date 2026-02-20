@@ -1,0 +1,50 @@
+llm:
+  provider: OLLAMA
+
+  meta:
+    model: mistral
+    temperature: 0.2
+    max_tokens: 2048
+
+  http_client:
+    api_url: http://host.docker.internal:11434
+    timeout: 600
+    headers: {}
+    verify_ssl: false
+
+  llm_kwargs: {}
+
+vcs:
+  provider: GITHUB
+
+  pipeline:
+    provider: GITHUB_ACTIONS
+    workspace: /app
+    owner: dummy
+    repo: dummy
+    pull_number: "1"
+    sha: dummysha
+    ref: refs/heads/main
+
+  http_client:
+    api_url: https://api.github.com
+    api_token: dummy-token
+    timeout: 60
+    headers: {}
+    verify_ssl: true
+
+  owner: dummy
+  repository: dummy
+  pull_number: "1"
+
+review:
+  fail_on_severity: NONE
+  max_files: 100
+  max_diff_size: 500000
+  exclude_paths: []
+  include_extensions: []
+
+runtime:
+  dry_run: true
+  clear_inline_comments: false
+  parallelism: 1
