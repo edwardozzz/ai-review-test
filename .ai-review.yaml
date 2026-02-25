@@ -20,21 +20,21 @@ vcs:
   pipeline:
     provider: GITHUB_ACTIONS
     workspace: /app
-    owner: dummy
-    repo: dummy
+    owner: edwardozzz
+    repo: ai-review-test
     pull_number: "1"
-    sha: dummysha
-    ref: refs/heads/main
+    sha: d2b5d1e4f9332c1224f2f7d1635a8461614a5f68
+    ref: refs/pull/3/head
 
   http_client:
     api_url: https://api.github.com
-    api_token: dummy-token
+    api_token: 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
     timeout: 60
     headers: {}
     verify_ssl: true
 
-  owner: dummy
-  repository: dummy
+  owner: edwardozzz
+  repository: ai-review-test
   pull_number: "1"
 
 review:
