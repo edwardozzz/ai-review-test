@@ -1,0 +1,62 @@
+name: AI Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  review:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Create config
+      run: |
+        cat <<EOF > .ai-review.yaml
+        llm:
+          provider: OLLAMA
+
+          meta:
+            model: mistral
+            temperature: 0.2
+            max_tokens: 2048
+
+          http_client:
+            api_url: http://host.docker.internal:11434
+            timeout: 600
+            verify_ssl: false
+
+        vcs:
+          provider: GITHUB
+
+          owner: edwardozzz
+          repository: ai-review-test
+
+          pull_number: "${{ github.event.pull_request.number }}"
+          sha: "${{ github.event.pull_request.head.sha }}"
+          ref: "refs/pull/${{ github.event.pull_request.number }}/head"
+
+          http_client:
+            api_url: https://api.github.com
+            api_token: ${{ secrets.GITHUB_TOKEN }}
+
+        review:
+          fail_on_severity: NONE
+
+        runtime:
+          dry_run: false
+
+        EOF
+
+    - name: Run AI Review
+      run: |
+        docker run --rm \
+          -v ${{ github.workspace }}:/app \
+          -w /app \
+          -e AI_REVIEW_CONFIG_FILE_YAML=/app/.ai-review.yaml \
+          nikitafilonov/ai-review:latest \
+          ai-review run
