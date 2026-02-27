@@ -12,126 +12,64 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
-
-    ####################################################
-    # 1. Показать параметры Pull Request
-    ####################################################
-
-    - name: Debug PR Info
-      run: |
-        echo "Owner = ${{ github.repository_owner }}"
-        echo "Repo = ${{ github.event.repository.name }}"
-        echo "PR = ${{ github.event.pull_request.number }}"
-        echo "SHA = ${{ github.event.pull_request.head.sha }}"
-        echo "REF = refs/pull/${{ github.event.pull_request.number }}/head"
-
-
-    ####################################################
-    # 2. Создание конфига
-    ####################################################
-
-    - name: Create config
+    - name: Generate config
       run: |
         cat > .ai-review.yaml <<EOF
-llm:
-  provider: OLLAMA
+        llm:
+          provider: OLLAMA
+          meta:
+            model: mistral
+            temperature: 0.2
+            max_tokens: 2048
 
-  meta:
-    model: mistral
-    temperature: 0.2
-    max_tokens: 2048
+          http_client:
+            api_url: http://host.docker.internal:11434
+            timeout: 600
+            headers: {}
+            verify_ssl: false
 
-  http_client:
-    api_url: http://host.docker.internal:11434
-    timeout: 600
-    verify_ssl: false
+          llm_kwargs: {}
 
+        vcs:
+          provider: GITHUB
 
-vcs:
-  provider: GITHUB
+          pipeline:
+            provider: GITHUB_ACTIONS
+            workspace: /app
+            owner: ${{ github.repository_owner }}
+            repo: ${{ github.event.repository.name }}
+            pull_number: "${{ github.event.pull_request.number }}"
+            sha: ${{ github.event.pull_request.head.sha }}
+            ref: ${{ github.ref }}
 
-  pipeline:
-    provider: GITHUB_ACTIONS
-    workspace: /app
-    owner: ${{ github.repository_owner }}
-    repo: ${{ github.event.repository.name }}
-    pull_number: "${{ github.event.pull_request.number }}"
-    sha: ${{ github.event.pull_request.head.sha }}
-    ref: refs/pull/${{ github.event.pull_request.number }}/head
+          http_client:
+            api_url: https://api.github.com
+            api_token: ${{ secrets.GITHUB_TOKEN }}
+            timeout: 60
+            headers: {}
+            verify_ssl: true
 
-  http_client:
-    api_url: https://api.github.com
-    api_token: ${{ secrets.GITHUB_TOKEN }}
-    timeout: 60
-    verify_ssl: true
+          owner: ${{ github.repository_owner }}
+          repository: ${{ github.event.repository.name }}
+          pull_number: "${{ github.event.pull_request.number }}"
 
-  owner: ${{ github.repository_owner }}
-  repository: ${{ github.event.repository.name }}
-  pull_number: "${{ github.event.pull_request.number }}"
+        review:
+          fail_on_severity: NONE
+          max_files: 100
+          max_diff_size: 500000
+          exclude_paths: []
+          include_extensions: []
 
-
-review:
-  fail_on_severity: NONE
-  max_files: 100
-  max_diff_size: 500000
-
-
-runtime:
-  dry_run: false
-  clear_inline_comments: false
-  parallelism: 1
-EOF
-
-
-    ####################################################
-    # 3. Проверка файла
-    ####################################################
-
-    - name: Check file exists
-      run: |
-        ls -la
-        echo ""
-        echo "CONFIG FILE:"
-        ls -la .ai-review.yaml
-
-
-    ####################################################
-    # 4. Показать конфиг
-    ####################################################
-
-    - name: Show config
-      run: |
-        echo "===== CONFIG START ====="
-        cat .ai-review.yaml
-        echo "===== CONFIG END ====="
-
-
-    ####################################################
-    # 5. Проверка YAML
-    ####################################################
-
-    - name: Validate YAML
-      run: |
-        python3 - <<EOF
-import yaml
-f=open(".ai-review.yaml")
-data=yaml.safe_load(f)
-
-print("YAML loaded OK")
-
-print("Has vcs:", "vcs" in data)
-print("Has pipeline:", "pipeline" in data["vcs"])
-EOF
-
-
-    ####################################################
-    # 6. Запуск
-    ####################################################
+        runtime:
+          dry_run: false
+          clear_inline_comments: false
+          parallelism: 1
+        EOF
 
     - name: Run AI Review
       run: |
         docker run --rm \
-          -v ${{ github.workspace }}:/app \
+          -v $(pwd):/app \
           -w /app \
           -e AI_REVIEW_CONFIG_FILE_YAML=/app/.ai-review.yaml \
           nikitafilonov/ai-review:latest \
