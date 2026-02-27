@@ -1,13 +1,14 @@
 name: AI Review
 
 on:
-  pull_request:    # автоматически на PR
+  pull_request:
     types: [opened, synchronize, reopened]
-  workflow_dispatch: # возможность вручную протестировать на любой ветке
+  workflow_dispatch:  # позволяет запускать вручную на любой ветке
 
 jobs:
   ai-review:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -36,6 +37,7 @@ jobs:
               provider: GITHUB_ACTIONS
               workspace: /app
               owner: ${{ github.repository_owner }}
+              repo: ${{ github.event.repository.name }}
               repository: ${{ github.event.repository.name }}
               pull_number: "${{ github.event.pull_request.number }}"
               sha: ${{ github.event.pull_request.head.sha }}
