@@ -9,51 +9,124 @@ jobs:
 
     steps:
 
-    - uses: actions/checkout@v4
+    - name: Checkout
+      uses: actions/checkout@v4
+
+
+    ####################################################
+    # 1. Показать параметры Pull Request
+    ####################################################
+
+    - name: Debug PR Info
+      run: |
+        echo "Owner = ${{ github.repository_owner }}"
+        echo "Repo = ${{ github.event.repository.name }}"
+        echo "PR = ${{ github.event.pull_request.number }}"
+        echo "SHA = ${{ github.event.pull_request.head.sha }}"
+        echo "REF = refs/pull/${{ github.event.pull_request.number }}/head"
+
+
+    ####################################################
+    # 2. Создание конфига
+    ####################################################
 
     - name: Create config
       run: |
-        cat <<EOF > .ai-review.yaml
-        llm:
-          provider: OLLAMA
-          meta:
-            model: mistral
-            temperature: 0.2
-            max_tokens: 2048
+        cat > .ai-review.yaml <<EOF
+llm:
+  provider: OLLAMA
 
-          http_client:
-            api_url: http://host.docker.internal:11434
-            timeout: 600
-            verify_ssl: false
+  meta:
+    model: mistral
+    temperature: 0.2
+    max_tokens: 2048
 
-        vcs:
-          provider: GITHUB
+  http_client:
+    api_url: http://host.docker.internal:11434
+    timeout: 600
+    verify_ssl: false
 
-          pipeline:
-            provider: GITHUB_ACTIONS
-            workspace: /app
-            owner: ${{ github.repository_owner }}
-            repo: ${{ github.event.repository.name }}
-            pull_number: "${{ github.event.pull_request.number }}"
-            sha: ${{ github.event.pull_request.head.sha }}
-            ref: refs/pull/${{ github.event.pull_request.number }}/head
 
-          http_client:
-            api_url: https://api.github.com
-            api_token: ${{ secrets.GITHUB_TOKEN }}
-            timeout: 60
-            verify_ssl: true
+vcs:
+  provider: GITHUB
 
-          owner: ${{ github.repository_owner }}
-          repository: ${{ github.event.repository.name }}
-          pull_number: "${{ github.event.pull_request.number }}"
+  pipeline:
+    provider: GITHUB_ACTIONS
+    workspace: /app
+    owner: ${{ github.repository_owner }}
+    repo: ${{ github.event.repository.name }}
+    pull_number: "${{ github.event.pull_request.number }}"
+    sha: ${{ github.event.pull_request.head.sha }}
+    ref: refs/pull/${{ github.event.pull_request.number }}/head
 
-        review:
-          fail_on_severity: NONE
+  http_client:
+    api_url: https://api.github.com
+    api_token: ${{ secrets.GITHUB_TOKEN }}
+    timeout: 60
+    verify_ssl: true
 
-        runtime:
-          dry_run: false
-        EOF
+  owner: ${{ github.repository_owner }}
+  repository: ${{ github.event.repository.name }}
+  pull_number: "${{ github.event.pull_request.number }}"
+
+
+review:
+  fail_on_severity: NONE
+  max_files: 100
+  max_diff_size: 500000
+
+
+runtime:
+  dry_run: false
+  clear_inline_comments: false
+  parallelism: 1
+EOF
+
+
+    ####################################################
+    # 3. Проверка файла
+    ####################################################
+
+    - name: Check file exists
+      run: |
+        ls -la
+        echo ""
+        echo "CONFIG FILE:"
+        ls -la .ai-review.yaml
+
+
+    ####################################################
+    # 4. Показать конфиг
+    ####################################################
+
+    - name: Show config
+      run: |
+        echo "===== CONFIG START ====="
+        cat .ai-review.yaml
+        echo "===== CONFIG END ====="
+
+
+    ####################################################
+    # 5. Проверка YAML
+    ####################################################
+
+    - name: Validate YAML
+      run: |
+        python3 - <<EOF
+import yaml
+f=open(".ai-review.yaml")
+data=yaml.safe_load(f)
+
+print("YAML loaded OK")
+
+print("Has vcs:", "vcs" in data)
+print("Has pipeline:", "pipeline" in data["vcs"])
+EOF
+
+
+    ####################################################
+    # 6. Запуск
+    ####################################################
 
     - name: Run AI Review
       run: |
