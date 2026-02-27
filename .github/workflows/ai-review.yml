@@ -2,16 +2,20 @@ name: AI Review
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:  # позволяет запускать вручную на любой ветке
 
 jobs:
-  review:
+  ai-review:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Generate AI Review config
+      - name: Generate .ai-review.yaml dynamically
         run: |
           cat > .ai-review.yaml <<EOF
           llm:
@@ -21,8 +25,9 @@ jobs:
               temperature: 0.2
               max_tokens: 2048
             http_client:
-              api_url: http://host.docker.internal:11434
+              api_url: http://127.0.0.1:11434
               timeout: 600
+              headers: {}
               verify_ssl: false
             llm_kwargs: {}
 
@@ -32,6 +37,7 @@ jobs:
               provider: GITHUB_ACTIONS
               workspace: /app
               owner: ${{ github.repository_owner }}
+              repo: ${{ github.event.repository.name }}
               repository: ${{ github.event.repository.name }}
               pull_number: "${{ github.event.pull_request.number }}"
               sha: ${{ github.event.pull_request.head.sha }}
@@ -40,6 +46,7 @@ jobs:
               api_url: https://api.github.com
               api_token: ${{ secrets.GITHUB_TOKEN }}
               timeout: 60
+              headers: {}
               verify_ssl: true
 
           review:
@@ -57,7 +64,7 @@ jobs:
 
       - name: Run AI Review
         run: |
-          docker run --rm \
+          docker run --rm --network=host \
             -v $(pwd):/app \
             -w /app \
             -e AI_REVIEW_CONFIG_FILE_YAML=/app/.ai-review.yaml \
