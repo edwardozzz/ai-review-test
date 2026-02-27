@@ -2,11 +2,9 @@ name: AI Review
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
 
 jobs:
   review:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -14,12 +12,11 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Create config
+    - name: Generate config
       run: |
-        cat <<EOF > .ai-review.yaml
+        cat > .ai-review.yaml <<EOF
         llm:
           provider: OLLAMA
-
           meta:
             model: mistral
             temperature: 0.2
@@ -28,34 +25,51 @@ jobs:
           http_client:
             api_url: http://host.docker.internal:11434
             timeout: 600
+            headers: {}
             verify_ssl: false
+
+          llm_kwargs: {}
 
         vcs:
           provider: GITHUB
 
-          owner: edwardozzz
-          repository: ai-review-test
-
-          pull_number: "${{ github.event.pull_request.number }}"
-          sha: "${{ github.event.pull_request.head.sha }}"
-          ref: "refs/pull/${{ github.event.pull_request.number }}/head"
+          pipeline:
+            provider: GITHUB_ACTIONS
+            workspace: /app
+            owner: ${{ github.repository_owner }}
+            repo: ${{ github.event.repository.name }}
+            pull_number: "${{ github.event.pull_request.number }}"
+            sha: ${{ github.event.pull_request.head.sha }}
+            ref: ${{ github.ref }}
 
           http_client:
             api_url: https://api.github.com
             api_token: ${{ secrets.GITHUB_TOKEN }}
+            timeout: 60
+            headers: {}
+            verify_ssl: true
+
+          owner: ${{ github.repository_owner }}
+          repository: ${{ github.event.repository.name }}
+          pull_number: "${{ github.event.pull_request.number }}"
 
         review:
           fail_on_severity: NONE
+          max_files: 100
+          max_diff_size: 500000
+          exclude_paths: []
+          include_extensions: []
 
         runtime:
           dry_run: false
-
+          clear_inline_comments: false
+          parallelism: 1
         EOF
 
     - name: Run AI Review
       run: |
         docker run --rm \
-          -v ${{ github.workspace }}:/app \
+          -v $(pwd):/app \
           -w /app \
           -e AI_REVIEW_CONFIG_FILE_YAML=/app/.ai-review.yaml \
           nikitafilonov/ai-review:latest \
