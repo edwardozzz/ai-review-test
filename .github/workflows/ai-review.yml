@@ -8,68 +8,58 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Checkout
-      uses: actions/checkout@v4
+      - name: Generate AI Review config
+        run: |
+          cat > .ai-review.yaml <<EOF
+          llm:
+            provider: OLLAMA
+            meta:
+              model: mistral
+              temperature: 0.2
+              max_tokens: 2048
+            http_client:
+              api_url: http://host.docker.internal:11434
+              timeout: 600
+              verify_ssl: false
+            llm_kwargs: {}
 
-    - name: Generate config
-      run: |
-        cat > .ai-review.yaml <<EOF
-        llm:
-          provider: OLLAMA
-          meta:
-            model: mistral
-            temperature: 0.2
-            max_tokens: 2048
+          vcs:
+            provider: GITHUB
+            pipeline:
+              provider: GITHUB_ACTIONS
+              workspace: /app
+              owner: ${{ github.repository_owner }}
+              repository: ${{ github.event.repository.name }}
+              pull_number: "${{ github.event.pull_request.number }}"
+              sha: ${{ github.event.pull_request.head.sha }}
+              ref: ${{ github.ref }}
+            http_client:
+              api_url: https://api.github.com
+              api_token: ${{ secrets.GITHUB_TOKEN }}
+              timeout: 60
+              verify_ssl: true
 
-          http_client:
-            api_url: http://host.docker.internal:11434
-            timeout: 600
-            headers: {}
-            verify_ssl: false
+          review:
+            fail_on_severity: NONE
+            max_files: 100
+            max_diff_size: 500000
+            exclude_paths: []
+            include_extensions: []
 
-          llm_kwargs: {}
+          runtime:
+            dry_run: false
+            clear_inline_comments: false
+            parallelism: 1
+          EOF
 
-        vcs:
-          provider: GITHUB
-          pipeline:
-            provider: GITHUB_ACTIONS
-            workspace: /app
-            owner: ${{ github.repository_owner }}
-            repository: ${{ github.event.repository.name }}
-            pull_number: "${{ github.event.pull_request.number }}"
-            sha: ${{ github.event.pull_request.head.sha }}
-            ref: ${{ github.ref }}
-
-          http_client:
-            api_url: https://api.github.com
-            api_token: ${{ secrets.GITHUB_TOKEN }}
-            timeout: 60
-            headers: {}
-            verify_ssl: true
-
-          owner: ${{ github.repository_owner }}
-          repository: ${{ github.event.repository.name }}
-          pull_number: "${{ github.event.pull_request.number }}"
-
-        review:
-          fail_on_severity: NONE
-          max_files: 100
-          max_diff_size: 500000
-          exclude_paths: []
-          include_extensions: []
-
-        runtime:
-          dry_run: false
-          clear_inline_comments: false
-          parallelism: 1
-        EOF
-
-    - name: Run AI Review
-      run: |
-        docker run --rm \
-          -v $(pwd):/app \
-          -w /app \
-          -e AI_REVIEW_CONFIG_FILE_YAML=/app/.ai-review.yaml \
-          nikitafilonov/ai-review:latest \
-          ai-review run
+      - name: Run AI Review
+        run: |
+          docker run --rm \
+            -v $(pwd):/app \
+            -w /app \
+            -e AI_REVIEW_CONFIG_FILE_YAML=/app/.ai-review.yaml \
+            nikitafilonov/ai-review:latest \
+            ai-review run
