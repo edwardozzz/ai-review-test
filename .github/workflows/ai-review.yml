@@ -32,12 +32,11 @@ jobs:
 
         vcs:
           provider: GITHUB
-
           pipeline:
             provider: GITHUB_ACTIONS
             workspace: /app
             owner: ${{ github.repository_owner }}
-            repo: ${{ github.event.repository.name }}
+            repository: ${{ github.event.repository.name }}
             pull_number: "${{ github.event.pull_request.number }}"
             sha: ${{ github.event.pull_request.head.sha }}
             ref: ${{ github.ref }}
