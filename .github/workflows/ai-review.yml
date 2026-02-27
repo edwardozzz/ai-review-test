@@ -25,7 +25,7 @@ jobs:
               temperature: 0.2
               max_tokens: 2048
             http_client:
-              api_url: http://host.docker.internal:11434
+              api_url: http://127.0.0.1:11434
               timeout: 600
               headers: {}
               verify_ssl: false
@@ -64,8 +64,7 @@ jobs:
 
       - name: Run AI Review
         run: |
-          docker run --rm \
-            --add-host=host.docker.internal:host-gateway \
+          docker run --rm --network=host \
             -v $(pwd):/app \
             -w /app \
             -e AI_REVIEW_CONFIG_FILE_YAML=/app/.ai-review.yaml \
