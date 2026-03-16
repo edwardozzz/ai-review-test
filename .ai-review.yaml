@@ -14,28 +14,32 @@ llm:
 
   llm_kwargs: {}
 
+
 vcs:
   provider: GITHUB
 
   pipeline:
     provider: GITHUB_ACTIONS
     workspace: /app
-    owner: dummy
-    repo: dummy
-    pull_number: "1"
-    sha: dummysha
-    ref: refs/heads/main
+
+    owner: edwardozzz
+    repo: ai-review-test
+
+    pull_number: "7"
+    sha: f374b2bde9d9d31ca284499ffce79563b57cb15d
+    ref: refs/pull/7/head
 
   http_client:
     api_url: https://api.github.com
-    api_token: dummy-token
+    api_token: ${GITHUB_TOKEN}
     timeout: 60
     headers: {}
     verify_ssl: true
 
-  owner: dummy
-  repository: dummy
-  pull_number: "1"
+  owner: edwardozzz
+  repository: ai-review-test
+  pull_number: "7"
+
 
 review:
   fail_on_severity: NONE
@@ -44,7 +48,9 @@ review:
   exclude_paths: []
   include_extensions: []
 
+
 runtime:
   dry_run: true
   clear_inline_comments: false
   parallelism: 1
+
