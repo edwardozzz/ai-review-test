@@ -1,0 +1,26 @@
+nohup: ввод игнорируется
+Couldn't find '/root/.ollama/id_ed25519'. Generating new private key.
+Your new public key is: 
+
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOx87ngoaLwcjdgzP243Sm4ULVeYcqJSYNZJo9o2LYbT
+
+time=2026-02-20T09:34:07.940Z level=INFO source=routes.go:1663 msg="server config" env="map[CUDA_VISIBLE_DEVICES: GGML_VK_VISIBLE_DEVICES: GPU_DEVICE_ORDINAL: HIP_VISIBLE_DEVICES: HSA_OVERRIDE_GFX_VERSION: HTTPS_PROXY: HTTP_PROXY: NO_PROXY: OLLAMA_CONTEXT_LENGTH:0 OLLAMA_DEBUG:INFO OLLAMA_EDITOR: OLLAMA_FLASH_ATTENTION:false OLLAMA_GPU_OVERHEAD:0 OLLAMA_HOST:http://0.0.0.0:11434 OLLAMA_KEEP_ALIVE:5m0s OLLAMA_KV_CACHE_TYPE: OLLAMA_LLM_LIBRARY: OLLAMA_LOAD_TIMEOUT:5m0s OLLAMA_MAX_LOADED_MODELS:0 OLLAMA_MAX_QUEUE:512 OLLAMA_MODELS:/root/.ollama/models OLLAMA_MULTIUSER_CACHE:false OLLAMA_NEW_ENGINE:false OLLAMA_NOHISTORY:false OLLAMA_NOPRUNE:false OLLAMA_NO_CLOUD:false OLLAMA_NUM_PARALLEL:1 OLLAMA_ORIGINS:[http://localhost https://localhost http://localhost:* https://localhost:* http://127.0.0.1 https://127.0.0.1 http://127.0.0.1:* https://127.0.0.1:* http://0.0.0.0 https://0.0.0.0 http://0.0.0.0:* https://0.0.0.0:* app://* file://* tauri://* vscode-webview://* vscode-file://*] OLLAMA_REMOTES:[ollama.com] OLLAMA_SCHED_SPREAD:false OLLAMA_VULKAN:false ROCR_VISIBLE_DEVICES: http_proxy: https_proxy: no_proxy:]"
+time=2026-02-20T09:34:07.940Z level=INFO source=routes.go:1665 msg="Ollama cloud disabled: false"
+time=2026-02-20T09:34:07.941Z level=INFO source=images.go:473 msg="total blobs: 0"
+time=2026-02-20T09:34:07.941Z level=INFO source=images.go:480 msg="total unused blobs removed: 0"
+time=2026-02-20T09:34:07.941Z level=INFO source=routes.go:1718 msg="Listening on [::]:11434 (version 0.16.2)"
+time=2026-02-20T09:34:07.941Z level=INFO source=runner.go:67 msg="discovering available GPUs..."
+time=2026-02-20T09:34:07.941Z level=INFO source=server.go:431 msg="starting runner" cmd="/usr/bin/ollama runner --ollama-engine --port 42725"
+time=2026-02-20T09:34:07.987Z level=INFO source=server.go:431 msg="starting runner" cmd="/usr/bin/ollama runner --ollama-engine --port 33451"
+time=2026-02-20T09:34:08.022Z level=INFO source=runner.go:106 msg="experimental Vulkan support disabled.  To enable, set OLLAMA_VULKAN=1"
+time=2026-02-20T09:34:08.022Z level=INFO source=types.go:60 msg="inference compute" id=cpu library=cpu compute="" name=cpu description=cpu libdirs=ollama driver="" pci_id="" type="" total="62.4 GiB" available="62.3 GiB"
+time=2026-02-20T09:34:08.022Z level=INFO source=routes.go:1768 msg="vram-based default context" total_vram="0 B" default_num_ctx=4096
+[GIN] 2026/02/20 - 09:34:21 | 404 |       2.795µs |       127.0.0.1 | GET      "/ping"
+[GIN] 2026/02/20 - 09:35:09 | 404 |     278.552µs |       127.0.0.1 | POST     "/api/chat"
+[GIN] 2026/02/20 - 09:37:51 | 200 |      58.409µs |       127.0.0.1 | HEAD     "/"
+[GIN] 2026/02/20 - 09:37:51 | 200 |     307.396µs |       127.0.0.1 | GET      "/api/tags"
+[GIN] 2026/02/20 - 09:38:01 | 200 |      15.242µs |       127.0.0.1 | HEAD     "/"
+time=2026-02-20T09:38:02.463Z level=INFO source=download.go:179 msg="downloading f5074b1221da in 16 273 MB part(s)"
+time=2026-02-20T09:38:12.733Z level=INFO source=download.go:297 msg="f5074b1221da part 9 attempt 0 failed: Get \"https://dd20bb891979d25aebc8bec07b2b3bbc.r2.cloudflarestorage.com/ollama/docker/registry/v2/blobs/sha256/f5/f5074b1221da0f5a2910d33b642efa5b9eb58cfdddca1c79e16d7ad28aa2b31f/data?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=66040c77ac1b787c3af820529859349a%2F20260220%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20260220T093802Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=32362ea76b5c504a64e0558992177503dfa04f91f66a3b986bab919f183ea247\": net/http: TLS handshake timeout, retrying in 1s"
+time=2026-02-20T09:38:12.739Z level=INFO source=download.go:297 msg="f5074b1221da part 6 attempt 0 failed: Get \"https://dd20bb891979d25aebc8bec07b2b3bbc.r2.cloudflarestorage.com/ollama/docker/registry/v2/blobs/sha256/f5/f5074b1221da0f5a2910d33b642efa5b9eb58cfdddca1c79e16d7ad28aa2b31f/data?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=66040c77ac1b787c3af820529859349a%2F20260220%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20260220T093802Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=32362ea76b5c504a64e0558992177503dfa04f91f66a3b986bab919f183ea247\": net/http: TLS handshake timeout, retrying in 1s"
+[GIN] 2026/02/20 - 09:38:22 | 200 | 21.341517559s |       127.0.0.1 | POST     "/api/pull"
